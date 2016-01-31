@@ -23,12 +23,12 @@ def url_shortner(url, **kwargs):
 
 	return _us.short_url
 
-
-
 def get_long_url(short_id, **kwargs):
 	short_url = "{}{}".format(app.config['DOMAIN'], short_id)
 	try:
 		_us = UrlShortner.objects.get(short_url=short_url)
+		_us.hits += 1
+		_us.save()
 	except Exception, e:
 		raise e
 	return _us.long_url
