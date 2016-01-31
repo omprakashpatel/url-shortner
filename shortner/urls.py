@@ -9,7 +9,8 @@ def hello():
 
 @app.route('/shortner', methods=['POST'])
 def url_shortner_api():
-	return jsonify(status="success", data=url_shortner(**(request.json or {})))
+	return jsonify(status="success", data=url_shortner(
+		**(request.json or request.form or {})))
 
 @app.route('/<short_id>', methods=['GET'])
 def url_shortner_redirect_api(short_id):
