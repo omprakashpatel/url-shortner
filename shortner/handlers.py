@@ -1,6 +1,30 @@
 from shortner.models.base import UrlShortner
 from shortner import app
 from utils import id_to_string, string_to_id, generate_id
+import requests
+from bs4 import BeautifulSoup
+
+# ==============================
+import thread
+def get_page_title(id, url):
+	print " ********************* thread Started ******************************"
+	try:
+		r = requests.get(url)
+		if r.status_code == 200:
+			soup = BeautifulSoup(r.text, "html.parser")
+			title = soup.title.string
+
+			# update in db
+			_us = UrlShortner.objects.get(id=id)
+			_us.title = title
+			_us.save()
+	except Exception, e:
+		print str(e)
+		raise e
+
+	print " ********************* thread Finishied ****************************"
+
+# ==============================
 
 def url_shortner(url, **kwargs):
 	"""
@@ -26,7 +50,10 @@ def url_shortner(url, **kwargs):
 			_us.save()
 		except Exception, e:
 			raise e
+		# task to get url title and store back to DB
+		thread.start_new_thread(get_page_title, (id, url))
 
+	print "--------- Existing Handler ----------------------"
 	return _us.short_url
 
 def get_long_url(short_id, **kwargs):
@@ -66,18 +93,19 @@ def get_url_desc(short_id, **kwargs):
 	except Exception, e:
 		raise e
 
-	return {'id': _us.id, 'short_url': _us.short_url,
-			'long_url': _us.long_url, 'hits': _us.hits}
+	return {'id': _us.id, 'short_url': _us.short_url, 'long_url': _us.long_url,
+			'hits': _us.hits, 'title': _us.title}
 
 
 def search_url(word, **kwargs):
 	if isinstance(word, list):
 		word = word[0]
 
-	_us_obj = UrlShortner.objects.filter(long_url__icontains=word)
+	_us_obj = UrlShortner.objects.search_text(word)
 
 	ret = []
 	for _us in _us_obj:
 		ret.append({ 'id': _us.id, 'short_url': _us.short_url,
-	 				'long_url': _us.long_url, 'hits': _us.hits})
+	 				'long_url': _us.long_url, 'hits': _us.hits,
+	 				'title': _us.title})
 	return ret
