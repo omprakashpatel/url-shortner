@@ -23,7 +23,11 @@ def id_to_string(id):
 	return s
 
 def string_to_id(s):
-	id = 0
-	for c in s:
-		id = id*62 + MAP_STRING.index(c)
-	return id
+	try:
+		id = 0
+		for c in s:
+			id = id*62 + MAP_STRING.index(c)
+		return id
+	except Exception, e:
+		raise Exception("Invalid Url")
+

@@ -56,3 +56,28 @@ def get_long_url_2(short_id, **kwargs):
 		raise e
 	return _us.long_url
 
+
+def get_url_desc(short_id, **kwargs):
+	"""
+	"""
+	id = string_to_id(short_id)
+	try:
+		_us = UrlShortner.objects.get(id=id)
+	except Exception, e:
+		raise e
+
+	return {'id': _us.id, 'short_url': _us.short_url,
+			'long_url': _us.long_url, 'hits': _us.hits}
+
+
+def search_url(word, **kwargs):
+	if isinstance(word, list):
+		word = word[0]
+
+	_us_obj = UrlShortner.objects.filter(long_url__icontains=word)
+
+	ret = []
+	for _us in _us_obj:
+		ret.append({ 'id': _us.id, 'short_url': _us.short_url,
+	 				'long_url': _us.long_url, 'hits': _us.hits})
+	return ret
