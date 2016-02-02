@@ -20,7 +20,6 @@ def get_page_title(id, url):
 			_us.save()
 	except Exception, e:
 		print str(e)
-		raise e
 
 	print " ********************* thread Finishied ****************************"
 
